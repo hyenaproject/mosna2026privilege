@@ -462,7 +462,7 @@ mgg_m <- fit_M_index(
 # Final data frame for plotting
 
 data <- data.frame(
-  Label = c("MOYear", "MOLife", "MG", "MGG"),
+  Label = c("MOYear", "MOTot", "MG", "MGG"),
   Male_Reproductive_Skew   = c(Moy_m_mean,  Mol_m_mean,  Mg_m_mean,  Mgg_m_mean),
   Male_Lower               = c(Moy_m_ci[1], Mol_m_ci[1], Mg_m_ci[1], Mgg_m_ci[1]),
   Male_Upper               = c(Moy_m_ci[2], Mol_m_ci[2], Mg_m_ci[2], Mgg_m_ci[2]),
@@ -720,7 +720,7 @@ gini_wide <- bind_rows(
     group_by(sex) |>
     summarise(
       value = get_gini_ci(n_off_type),
-      Measure = "Offspring lifetime",
+      Measure = "Offspring total",
     ),
   ids_completed |>
     group_by(sex) |>
@@ -741,7 +741,7 @@ gini_wide <- bind_rows(
 m_index_table <- data.frame(
   Measure = c(
     "Offspring annual rate",
-    "Offspring lifetime",
+    "Offspring total",
     "Grandoffspring",
     "Great-grandoffspring"
   ),
@@ -823,7 +823,7 @@ for (coh in cohort_labels) {
   moy_f <- fit_M_index(RS = unname(female_moy_c$n_off_type),  Time = unname(female_moy_c$tenure))
   moy_m <- fit_M_index(RS = unname(male_moy_c$n_off_type),    Time = unname(male_moy_c$tenure))
   
-  # 2. MOLife
+  # 2. MOTot
   mol_f <- fit_M_index(RS = unname(female_life_c$n_off_type), Time = unname(female_life_c$life))
   mol_m <- fit_M_index(RS = unname(male_life_c$n_off_type),   Time = unname(male_life_c$life))
   
@@ -844,7 +844,7 @@ for (coh in cohort_labels) {
   
   # Build data frame
   data_cohort <- data.frame(
-    Label                    = c("MOYear", "MOLife", "MG", "MGG"),
+    Label                    = c("MOYear", "MOTot", "MG", "MGG"),
     Male_Reproductive_Skew   = c(moy_m$mean, mol_m$mean, mg_m$mean, mgg_m$mean),
     Male_Lower               = c(moy_m$ci[1], mol_m$ci[1], mg_m$ci[1], mgg_m$ci[1]),
     Male_Upper               = c(moy_m$ci[2], mol_m$ci[2], mg_m$ci[2], mgg_m$ci[2]),
@@ -1364,17 +1364,16 @@ combined_table <- rbind(table_ancestor_native_r, table_ancestor_native_male_r)
 # Pivot to long format
 long_lineage <- combined_table |> 
   pivot_longer(
-    cols = starts_with("rank_G") | starts_with("ancestors_list_G"),
+    cols = starts_with("rank_G"),
     names_to = c(".value", "Generation"),
-    names_pattern = "(rank|ancestors_list)_G(\\d+)"
+    names_pattern = "(rank)_G(\\d+)"
   ) |> 
   mutate(
     Generation = -as.integer(Generation),
     Lineage_Type = as.factor(Lineage_Type)
   ) |> 
   rename(
-    MaternalRank_at_Birth = rank,
-    Ancestor_ID = ancestors_list
+    MaternalRank_at_Birth = rank
   ) |> 
   filter(!is.na(MaternalRank_at_Birth))
 
